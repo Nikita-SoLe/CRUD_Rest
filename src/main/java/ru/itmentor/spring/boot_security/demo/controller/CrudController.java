@@ -33,12 +33,12 @@ public class CrudController {
         model.addAttribute("allRoles", service.getRoles());
         return "ask-user-details-view";
     }
-
     @PostMapping("/createUser")
     public String createUser(@ModelAttribute("user") User user,
                              @RequestParam("role") String[] selectedRoles) {
 
-        System.out.println(selectedRoles.length);
+        System.out.println(user + printMas(selectedRoles));
+
         service.create(user, selectedRoles);
         return "redirect:/admin";
     }
@@ -61,5 +61,16 @@ public class CrudController {
                              @RequestParam("role") String[] selectedRoles) {
         service.update(user, selectedRoles);
         return "redirect:/admin";
+    }
+
+    private String printMas(String[] roles) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < roles.length; i++) {
+            sb.append(roles[i]);
+            if (i != roles.length - 1) {
+                sb.append(", ");
+            }
+        }
+        return sb.toString();
     }
 }

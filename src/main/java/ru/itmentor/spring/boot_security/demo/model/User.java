@@ -1,5 +1,6 @@
 package ru.itmentor.spring.boot_security.demo.model;
 
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -40,12 +41,13 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String lastName, String department, Integer salary) {
+    public User(String name, String password, String lastName, String department, Integer salary, Set<Role> roles) {
         this.name = name;
+        this.password = password;
         this.lastName = lastName;
         this.department = department;
         this.salary = salary;
-        this.roles = new HashSet<>();
+        this.roles = roles;
     }
 
     public User(Long id, String name, String password, String lastName, String department, Integer salary, Set<Role> roles) {
@@ -77,10 +79,10 @@ public class User implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
+
     public String getLastName() {
         return lastName;
     }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -146,5 +148,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", department='" + department + '\'' +
+                ", salary=" + salary +
+                ", roles=" + roles +
+                '}';
     }
 }

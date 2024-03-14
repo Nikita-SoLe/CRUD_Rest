@@ -22,6 +22,12 @@ public class UserServiceImpl implements UserService {
         userDao.create(user, selectedRoles);
     }
 
+    @Transactional
+    @Override
+    public void create(User user) {
+        userDao.create(user);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public User read(Long id) {
@@ -38,6 +44,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(User user, String[] selectedRoles) {
         userDao.update(user, selectedRoles);
+    }
+
+    @Transactional
+    @Override
+    public void update(User user) {
+        userDao.update(user);
     }
 
     @Transactional

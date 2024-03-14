@@ -1,30 +1,20 @@
 package ru.itmentor.spring.boot_security.demo.dao;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import ru.itmentor.spring.boot_security.demo.model.Role;
 import ru.itmentor.spring.boot_security.demo.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Repository
 public class UserUserDaoImpl implements UserDAO {
     @PersistenceContext
     private EntityManager manager;
-
-    @Override
-    public void create(User user, String[] selectedRoles) {
-        manager.persist(createUser(user, selectedRoles));
-    }
 
     @Override
     public User read(Long id) {
@@ -40,7 +30,22 @@ public class UserUserDaoImpl implements UserDAO {
 
     @Override
     public void update(User user, String[] selectedRoles) {
-        manager.merge(createUser(user, selectedRoles));
+        manager.merge(addRolesMas(createUser(user), selectedRoles));
+    }
+
+    @Override
+    public void update(User user) {
+        manager.merge(addRolesUser(user, createUser(user)));
+    }
+
+    @Override
+    public void create(User user, String[] selectedRoles) {
+        manager.persist(addRolesMas(createUser(user), selectedRoles));
+    }
+
+    @Override
+    public void create(User user) {
+        manager.persist(addRolesUser(user, createUser(user)));
     }
 
     @Override
@@ -59,21 +64,29 @@ public class UserUserDaoImpl implements UserDAO {
         return manager.createQuery("from Role", Role.class).getResultList();
     }
 
-    private User createUser(User user, String[] selectedRoles) {
-        User user1 = new User();
-        user1.setId(user.getId());
-        user1.setName(user.getName());
-        user1.setPassword(user.getPassword());
-        user1.setLastName(user.getLastName());
-        user1.setDepartment(user.getDepartment());
-        user1.setSalary(user.getSalary());
-
+    private User addRolesMas(User user, String[] selectedRoles) {
         List<String> roles = Arrays.asList(selectedRoles);
-        getRoles().forEach(role -> {
-            if (roles.contains(role.getNameRoles())) {
-                user1.addRole(role);
-            }
-        });
-        return user1;
+        getRoles().stream()
+                .filter(role -> roles.contains(role.getNameRoles()))
+                .forEach(user::addRole);
+        return user;
+    }
+
+    private User addRolesUser(User oldUser, User newUser) {
+        getRoles().stream()
+                .filter(roleBD -> oldUser.getRoles().stream().anyMatch(roleUser -> roleBD.getNameRoles().equals(roleUser.getNameRoles())))
+                .forEach(newUser::addRole);
+        return newUser;
+    }
+
+    private User createUser(User user) {
+        User newUser = new User();
+        newUser.setId(user.getId());
+        newUser.setName(user.getName());
+        newUser.setPassword(user.getPassword());
+        newUser.setLastName(user.getLastName());
+        newUser.setDepartment(user.getDepartment());
+        newUser.setSalary(user.getSalary());
+        return newUser;
     }
 }
